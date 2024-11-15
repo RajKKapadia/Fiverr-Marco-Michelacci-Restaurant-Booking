@@ -128,6 +128,7 @@ export interface Restaurant {
     paymentAccepted: string[];
     takeaway: boolean;
     petAccepted: boolean;
+    tableTypes: string[];
 };
 
 export interface Bookings {

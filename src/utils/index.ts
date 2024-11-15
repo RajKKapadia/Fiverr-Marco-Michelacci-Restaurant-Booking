@@ -25,7 +25,10 @@ export const generateDialogflowResponse = (messages?: string[], sessionInfo?: Se
 export const getCurrentDayOfWeek = (): string => {
     const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     const currentDate = new Date();
+    console.log(currentDate);
+    console.log(new Date(formatInTimeZone(currentDate, TIMEZONE, 'dd/MM/yyyy')));
     const currentDayIndex = new Date(formatInTimeZone(currentDate, TIMEZONE, 'dd/MM/yyyy')).getDay();
+    console.log(currentDayIndex);
     return daysOfWeek[currentDayIndex];
 };
 
@@ -64,19 +67,30 @@ export const isTimeWithinRange = (time: string, startTime: string, endTime: stri
 
 export const getBookingDateAndtime = (detectIntentResponse: DetectIntentResponse): BookingDateAndTime => {
     const parameters = detectIntentResponse.sessionInfo.parameters;
-    const day = parameters.bookingDate.day;
-    const month = parameters.bookingDate.month;
-    const year = parameters.bookingDate.year;
-    const hours = parameters.bookingTime.hours;
-    const minutes = parameters.bookingTime.minutes;
-    const bookingDate = new Date(`${day}/${month + 1}/${year}`).toLocaleDateString("en-US", { day: '2-digit', month: '2-digit', year: 'numeric', timeZone: TIMEZONE });
-    const bookingTime = new Date(Date.UTC(year, month + 1, day, hours, minutes, 0)).toLocaleTimeString("en-US", { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: TIMEZONE });
-    const currentDay = getCurrentDayOfWeek();
+    console.log('Parameters:', parameters);
+
+    const day = parameters.bookingdate.day;
+    const month = parameters.bookingdate.month;
+    const year = parameters.bookingdate.year;
+    const hours = parameters.bookingtime.hours;
+    const minutes = parameters.bookingtime.minutes;
+
+    console.log(`Date: ${day}/${month}/${year}`);
+    console.log(`Time: ${hours}:${minutes}`);
+
+    const bookingDate = formatInTimeZone(new Date(year, month - 1, day), TIMEZONE, 'dd/MM/yyyy');
+    console.log('Booking Date:', bookingDate);
+
+    const bookingDateTime = new Date(Date.UTC(year, month - 1, day, hours - 1, minutes, 0));
+    const bookingTime = formatInTimeZone(bookingDateTime, TIMEZONE, 'HH:mm');
+    console.log('Booking Time:', bookingTime);
+
     const bookingDay = getBookingOfWeekFromDate(bookingDate);
+    const currentDay = getCurrentDayOfWeek();
 
     const newBookingDateAndTime: BookingDateAndTime = {
-        bookingDay: bookingDay,
-        currentDay: currentDay,
+        bookingDay: "bookingDay",
+        currentDay: "currentDay",
         bookingDate: bookingDate,
         bookingTime: bookingTime
     }

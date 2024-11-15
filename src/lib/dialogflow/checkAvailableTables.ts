@@ -9,7 +9,7 @@ export const checkAvailableTables = async (detectIntentResponse: DetectIntentRes
         const session = detectIntentResponse.sessionInfo.session;
         const parameters = detectIntentResponse.sessionInfo.parameters;
         const restaurantNumber = parameters.restaurantNumber;
-        const partySize = parameters.partySize;
+        const partySize = parameters.partysize;
         const { currentDay, bookingDate, bookingTime } = getBookingDateAndtime(detectIntentResponse);
         const restaurant = await findRestaurantByPhone(restaurantNumber);
         if (restaurant) {
@@ -53,10 +53,11 @@ export const checkAvailableTables = async (detectIntentResponse: DetectIntentRes
 
             // 3. Check if the restaurant is open on this day
             const operatingHours = restaurantData.operatingHours[currentDay as keyof WeeklyOperatingHours];
+            console.log(operatingHours);
             if (!operatingHours) {
                 return generateDialogflowResponse(
                     [
-                        "Restaurant is not open today.",
+                        `Restaurant is not available for reservation at ${bookingTime} on ${bookingDate}.`,
                         "Do you want to choose anothe date and time?"
                     ],
                     {
@@ -73,7 +74,7 @@ export const checkAvailableTables = async (detectIntentResponse: DetectIntentRes
             if (!availability) {
                 return generateDialogflowResponse(
                     [
-                        "Restaurant is not open today.",
+                        `Restaurant is not available for reservation at ${bookingTime} on ${bookingDate}.`,
                         "Do you want to choose anothe date and time?"
                     ],
                     {
@@ -85,6 +86,8 @@ export const checkAvailableTables = async (detectIntentResponse: DetectIntentRes
                 );
             }
             const { id: availabilityId, data: availabilityData } = availability;
+
+            console.log(availabilityId);
 
             // Get the existing bookings for the booking date
             const existingBookings = await findBookingsByRestaurantPhoneAndDate(restaurantNumber, bookingDate);
