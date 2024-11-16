@@ -9,7 +9,8 @@ import {
     addToWaitingList,
     getACallback,
     getBookingFromPhone,
-    getBookingFromPhoneAndDate
+    getBookingFromPhoneAndDate,
+    invalidateBookingDate
 } from '@/lib/dialogflow'
 import { DetectIntentResponse } from '@/types'
 import { generateDialogflowResponse } from '@/utils'
@@ -45,8 +46,9 @@ export async function POST(request: NextRequest) {
             responseData = await getBookingFromPhone(detectIntentResponse);
         } else if (tag === "getBookingFromPhoneAndDate") {
             responseData = await getBookingFromPhoneAndDate(detectIntentResponse);
-        }
-        else {
+        } else if (tag === "invalidateBookingDate") {
+            responseData = invalidateBookingDate(detectIntentResponse);
+        } else {
             responseData = generateDialogflowResponse(
                 [`No handler for the tag ${tag}.`]
             );

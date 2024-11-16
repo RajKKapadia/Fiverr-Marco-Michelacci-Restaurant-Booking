@@ -1,8 +1,8 @@
-import { formatInTimeZone } from "date-fns-tz";
-import { BookingDateAndTime, DetectIntentResponse, DialogflowMessage, DialogflowResponse, SessionInfo } from "@/types";
+import { format, formatInTimeZone } from "date-fns-tz";
+import { BookingDateAndTime, DetectIntentResponse, DialogflowMessage, DialogflowResponse, PageInfo, SessionInfo } from "@/types";
 import { TIMEZONE } from "@/config/constants";
 
-export const generateDialogflowResponse = (messages?: string[], sessionInfo?: SessionInfo): DialogflowResponse => {
+export const generateDialogflowResponse = (messages?: string[], sessionInfo?: SessionInfo, pageInfo?: PageInfo): DialogflowResponse => {
     let dialogflowResponse: DialogflowResponse = {};
     if (messages) {
         const formattedMessages: DialogflowMessage[] = messages.map(text => ({
@@ -19,25 +19,22 @@ export const generateDialogflowResponse = (messages?: string[], sessionInfo?: Se
     if (sessionInfo) {
         dialogflowResponse.sessionInfo = sessionInfo;
     }
+    if (pageInfo) {
+        dialogflowResponse.pageInfo = pageInfo;
+    }
     return dialogflowResponse;
 };
 
 export const getCurrentDayOfWeek = (): string => {
-    const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-    const currentDate = new Date();
-    console.log(currentDate);
-    console.log(new Date(formatInTimeZone(currentDate, TIMEZONE, 'dd/MM/yyyy')));
-    const currentDayIndex = new Date(formatInTimeZone(currentDate, TIMEZONE, 'dd/MM/yyyy')).getDay();
-    console.log(currentDayIndex);
-    return daysOfWeek[currentDayIndex];
+    const currentDay = formatInTimeZone(new Date(), TIMEZONE, "EEEE");
+    return currentDay;
 };
 
 export const getBookingOfWeekFromDate = (dateStr: string): string => {
     const [day, month, year] = dateStr.split('/').map(Number);
-    const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-    const currentDate = new Date(year, month - 1, day);
-    const currentDayIndex = new Date(formatInTimeZone(currentDate, TIMEZONE, 'dd/MM/yyyy')).getDay();
-    return daysOfWeek[currentDayIndex];
+    const utcBookingDate = new Date(year, month - 1, day);
+    const bookingDay = format(utcBookingDate, "EEEE");
+    return bookingDay;
 };
 
 export const isTimeWithinRange = (time: string, startTime: string, endTime: string): boolean => {
@@ -67,32 +64,20 @@ export const isTimeWithinRange = (time: string, startTime: string, endTime: stri
 
 export const getBookingDateAndtime = (detectIntentResponse: DetectIntentResponse): BookingDateAndTime => {
     const parameters = detectIntentResponse.sessionInfo.parameters;
-    console.log('Parameters:', parameters);
-
     const day = parameters.bookingdate.day;
     const month = parameters.bookingdate.month;
     const year = parameters.bookingdate.year;
     const hours = parameters.bookingtime.hours;
     const minutes = parameters.bookingtime.minutes;
-
-    console.log(`Date: ${day}/${month}/${year}`);
-    console.log(`Time: ${hours}:${minutes}`);
-
-    const bookingDate = formatInTimeZone(new Date(year, month - 1, day), TIMEZONE, 'dd/MM/yyyy');
-    console.log('Booking Date:', bookingDate);
-
-    const bookingDateTime = new Date(Date.UTC(year, month - 1, day, hours - 1, minutes, 0));
-    const bookingTime = formatInTimeZone(bookingDateTime, TIMEZONE, 'HH:mm');
-    console.log('Booking Time:', bookingTime);
-
-    const bookingDay = getBookingOfWeekFromDate(bookingDate);
-    const currentDay = getCurrentDayOfWeek();
-
-    const newBookingDateAndTime: BookingDateAndTime = {
-        bookingDay: "bookingDay",
-        currentDay: "currentDay",
+    const utcBookingDate = new Date(year, month - 1, day, hours, minutes, 0);
+    const bookingDate = format(utcBookingDate, "dd/MM/yyyy");
+    const bookingDay = format(utcBookingDate, "EEEE");
+    const bookingTime = format(utcBookingDate, "HH:mm");
+    const currentDay = formatInTimeZone(new Date(), TIMEZONE, "EEEE");
+    return {
         bookingDate: bookingDate,
-        bookingTime: bookingTime
-    }
-    return newBookingDateAndTime;
+        bookingDay: bookingDay,
+        bookingTime: bookingTime,
+        currentDay: currentDay
+    };
 }

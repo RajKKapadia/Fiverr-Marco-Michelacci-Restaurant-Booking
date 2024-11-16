@@ -1,8 +1,7 @@
-import { NextRequest } from "next/server"
-import { DetectIntentResponse, DialogflowResponse, WeeklyOperatingHours, Slot, Availability } from "@/types"
+import { DetectIntentResponse, DialogflowResponse, WeeklyOperatingHours, Slot } from "@/types"
 import { ERROR_MESSAGE, TIMEZONE, DIALOGFLOW_FLAGS } from "@/config/constants"
 import { findAvailabilityByRestaurantPhoneAndDate, findBookingsByRestaurantPhoneAndDate, findRestaurantByPhone } from "@/lib/firebase"
-import { generateDialogflowResponse, getBookingDateAndtime, getCurrentDayOfWeek, isTimeWithinRange } from "@/utils"
+import { generateDialogflowResponse, getBookingDateAndtime, isTimeWithinRange } from "@/utils"
 
 export const checkAvailableTables = async (detectIntentResponse: DetectIntentResponse): Promise<DialogflowResponse> => {
     try {
@@ -10,7 +9,10 @@ export const checkAvailableTables = async (detectIntentResponse: DetectIntentRes
         const parameters = detectIntentResponse.sessionInfo.parameters;
         const restaurantNumber = parameters.restaurantNumber;
         const partySize = parameters.partysize;
-        const { currentDay, bookingDate, bookingTime } = getBookingDateAndtime(detectIntentResponse);
+        const { currentDay, bookingDate, bookingTime, bookingDay } = getBookingDateAndtime(detectIntentResponse);
+
+        console.log(currentDay, bookingDate, bookingTime, bookingDay);
+
         const restaurant = await findRestaurantByPhone(restaurantNumber);
         if (restaurant) {
             const { id: restaurantId, data: restaurantData } = restaurant;

@@ -18,9 +18,23 @@ interface IntentInfo {
     confidence: number;
 };
 
-interface PageInfo {
+interface ParameterInfo {
+    displayName: string;
+    required: boolean,
+    state: "PARAMETER_STATE_UNSPECIFIED" | "EMPTY" | "INVALID" | "FILLED";
+    value?: {
+        [key: string]: any;
+    }
+}
+
+interface FormInfo {
+    parameterInfo: ParameterInfo[]
+}
+
+export interface PageInfo {
     currentPage: string;
     displayName: string;
+    formInfo?: FormInfo;
 };
 
 export interface SessionInfo {
@@ -73,7 +87,8 @@ export interface DialogflowResponse {
     fulfillmentResponse?: {
         messages: DialogflowMessage[];
     };
-    sessionInfo?: SessionInfo
+    sessionInfo?: SessionInfo;
+    pageInfo?: PageInfo;
 };
 
 interface Address {
