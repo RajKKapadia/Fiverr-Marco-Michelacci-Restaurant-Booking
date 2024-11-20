@@ -6,10 +6,10 @@ export const getBookingFromPhoneAndDate = async (detectIntentResponse: DetectInt
     try {
         const parameters = detectIntentResponse.sessionInfo.parameters;
         const bookingDate = "";
-        const bookings = await findBookingByCustomerPhoneAndBookingDate(parameters.customerPhone, bookingDate, parameters.restaurantNumber);
+        const bookings = await findBookingByCustomerPhoneAndBookingDate(parameters.customerphone, bookingDate, parameters.restaurantNumber);
         if (bookings) {
             return generateDialogflowResponse(
-                [`The booking with the phone number ${parameters.customerPhone} found.`],
+                [`The booking with the phone number ${parameters.customerphone} found.`],
                 {
                     session: detectIntentResponse.sessionInfo.session,
                     parameters: {
@@ -20,7 +20,7 @@ export const getBookingFromPhoneAndDate = async (detectIntentResponse: DetectInt
             );
         } else {
             return generateDialogflowResponse(
-                [`The booking with the phone number ${parameters.customerPhone} not found.`],
+                [`The booking with the phone number ${parameters.customerphone} not found.`],
                 {
                     session: detectIntentResponse.sessionInfo.session,
                     parameters: {

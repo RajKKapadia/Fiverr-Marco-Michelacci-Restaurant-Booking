@@ -5,10 +5,10 @@ import { findBookingByCustomerPhone } from "@/lib/firebase";
 export const getBookingFromPhone = async (detectIntentResponse: DetectIntentResponse): Promise<DialogflowResponse> => {
     try {
         const parameters = detectIntentResponse.sessionInfo.parameters;
-        const bookings = await findBookingByCustomerPhone(parameters.customerPhone, parameters.restaurantNumber);
+        const bookings = await findBookingByCustomerPhone(parameters.customerphone, parameters.restaurantNumber);
         if (bookings) {
             return generateDialogflowResponse(
-                [`The booking with the phone number ${parameters.customerPhone} found.`],
+                [`The booking with the phone number ${parameters.customerphone} found.`],
                 {
                     session: detectIntentResponse.sessionInfo.session,
                     parameters: {
@@ -19,7 +19,7 @@ export const getBookingFromPhone = async (detectIntentResponse: DetectIntentResp
             );
         } else {
             return generateDialogflowResponse(
-                [`The booking with the phone number ${parameters.customerPhone} not found.`],
+                [`The booking with the phone number ${parameters.customerphone} not found.`],
                 {
                     session: detectIntentResponse.sessionInfo.session,
                     parameters: {
