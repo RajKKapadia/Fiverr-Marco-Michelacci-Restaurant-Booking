@@ -1,6 +1,6 @@
-import admin from "firebase-admin";
+import admin from "firebase-admin"
 
-import { ENV } from "@/utils/env";
+import { ENV } from "@/utils/env"
 
 function getFirebaseAdmin() {
     if (admin.apps.length === 0) {
@@ -11,9 +11,9 @@ function getFirebaseAdmin() {
                 privateKey: ENV.FIREBASE_CREDENTIALS.private_key
             }),
             databaseURL: "https://restaurant_bookings.firebaseio.com"
-        });
+        })
     }
-    return admin;
+    return admin
 }
 
-export const db = getFirebaseAdmin().firestore();
+export const db = getFirebaseAdmin().firestore()

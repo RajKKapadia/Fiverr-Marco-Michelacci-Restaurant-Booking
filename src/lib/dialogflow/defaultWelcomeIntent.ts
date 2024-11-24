@@ -1,14 +1,20 @@
-import { DetectIntentResponse, DialogflowResponse } from "@/types";
-import { generateDialogflowResponse } from "@/utils";
-import { findRestaurantByPhone } from "../firebase";
+import { DetectIntentResponse, DialogflowResponse } from "@/types"
+import { generateDialogflowResponse } from "@/utils"
+import { findRestaurantByPhone } from "../firebase"
+import { ERROR_MESSAGE } from "@/config/constants"
 
 export const defaultWelcomeIntent = async (detectIntentResponse: DetectIntentResponse): Promise<DialogflowResponse> => {
     try {
-        const session = detectIntentResponse.sessionInfo.session;
-        const parameters = detectIntentResponse.sessionInfo.parameters;
-        const restaurant = await findRestaurantByPhone(parameters.restaurantNumber);
+        const session = detectIntentResponse.sessionInfo.session
+        const parameters = detectIntentResponse.sessionInfo.parameters
+        if (parameters == null) {
+            return generateDialogflowResponse(
+                [ERROR_MESSAGE]
+            )
+        }
+        const restaurant = await findRestaurantByPhone(parameters.restaurantNumber)
         if (restaurant) {
-            const { id: restaurantId, data: restaurantData } = restaurant;
+            const { id: restaurantId, data: restaurantData } = restaurant
             return generateDialogflowResponse(
                 [`Welcome to ${restaurantData.name}, how can I help you today?`],
                 {
@@ -18,17 +24,17 @@ export const defaultWelcomeIntent = async (detectIntentResponse: DetectIntentRes
                         restaurantId: restaurantId
                     }
                 }
-            );
+            )
         } else {
-            console.error(`Unable find the restaurant by the phone: ${parameters.restaurantNumber}`);
+            console.error(`Unable find the restaurant by the phone: ${parameters.restaurantNumber}`)
             return generateDialogflowResponse(
                 ["The restaurant is Closed at this point for unknown reasons."]
-            );
+            )
         }
     } catch (error) {
-        console.error('Error checking restaurant status:', error);
+        console.error('Error checking restaurant status:', error)
         return generateDialogflowResponse(
-            ["The restaurant is Closed at this point for unknown reasons."]
-        );
+            [ERROR_MESSAGE]
+        )
     }
 }

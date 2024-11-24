@@ -9,7 +9,7 @@ export const getFutureHolidays = async (): Promise<DialogflowResponse> => {
     try {
         const restaurant = await findRestaurantByPhone("+390811234567");
         if (restaurant) {
-            const { id: restaurantId, data: restaurantData } = restaurant;
+            const { data: restaurantData } = restaurant;
             const currentDate = new Date().toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric', timeZone: TIMEZONE });
             const { holidays } = restaurantData;
             const futureHolidays = holidays.filter((holiday) => {

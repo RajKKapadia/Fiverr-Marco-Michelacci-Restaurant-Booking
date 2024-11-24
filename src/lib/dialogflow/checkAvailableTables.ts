@@ -1,24 +1,32 @@
 import { DetectIntentResponse, DialogflowResponse, WeeklyOperatingHours, Slot } from "@/types"
-import { ERROR_MESSAGE, TIMEZONE, DIALOGFLOW_FLAGS } from "@/config/constants"
-import { findAvailabilityByRestaurantPhoneAndDate, findBookingsByRestaurantPhoneAndDate, findRestaurantByPhone } from "@/lib/firebase"
+import { ERROR_MESSAGE, BOOKING_STATUS } from "@/config/constants"
+import { findAvailabilityByRestaurantPhoneAndDate, findBookingByCustomerDateAndBookingStatus, findRestaurantByPhone } from "@/lib/firebase"
 import { generateDialogflowResponse, getBookingDateAndtime, isTimeWithinRange } from "@/utils"
 
 export const checkAvailableTables = async (detectIntentResponse: DetectIntentResponse): Promise<DialogflowResponse> => {
     try {
-        const session = detectIntentResponse.sessionInfo.session;
-        const parameters = detectIntentResponse.sessionInfo.parameters;
-        const restaurantNumber = parameters.restaurantNumber;
-        const partySize = parameters.partysize;
-        const { currentDay, bookingDate, bookingTime, bookingDay } = getBookingDateAndtime(detectIntentResponse);
+        const session = detectIntentResponse.sessionInfo.session
+        const parameters = detectIntentResponse.sessionInfo.parameters
+        if (parameters == null) {
+            return generateDialogflowResponse(
+                [ERROR_MESSAGE]
+            )
+        }
+        const { restaurantNumber, restaurantId } = parameters
+        const partySize = parameters.party_size || parameters.new_party_size
+        const day = parameters.booking_date.day as number || parameters.new_booking_date.day as number
+        const month = parameters.booking_date.month as number || parameters.new_booking_date.month as number
+        const year = parameters.booking_date.year as number || parameters.new_booking_date.year as number
+        const hours = parameters.booking_time.hours as number || parameters.new_booking_time.hours as number
+        const minutes = parameters.booking_time.minutes as number || parameters.new_booking_time.minutes as number
+        const { currentDay, bookingDate, bookingTime } = getBookingDateAndtime({ day: day, month: month - 1, year: year, hours: hours, minutes: minutes })
+        const restaurant = await findRestaurantByPhone(restaurantNumber)
 
-        console.log(currentDay, bookingDate, bookingTime, bookingDay);
-
-        const restaurant = await findRestaurantByPhone(restaurantNumber);
         if (restaurant) {
-            const { id: restaurantId, data: restaurantData } = restaurant;
+            const { data: restaurantData } = restaurant
 
             // 1. Check for holiday
-            const isHoliday = restaurantData.holidays.some(holiday => holiday.date === bookingDate);
+            const isHoliday = restaurantData.holidays.some(holiday => holiday.date === bookingDate)
             if (isHoliday) {
                 return generateDialogflowResponse(
                     [
@@ -28,16 +36,16 @@ export const checkAvailableTables = async (detectIntentResponse: DetectIntentRes
                     {
                         session: session,
                         parameters: {
-                            bookingStatus: DIALOGFLOW_FLAGS.NO_BOOKING
+                            bookingStatus: BOOKING_STATUS.NO_BOOKING
                         }
                     }
-                );
+                )
             }
 
             // 2. Check if there's a special event
             const hasSpecialEvent = restaurantData.specialEvents.some(event =>
                 event.date === bookingDate && event.requiresReservation === true
-            );
+            )
             if (hasSpecialEvent) {
                 return generateDialogflowResponse(
                     [
@@ -47,15 +55,14 @@ export const checkAvailableTables = async (detectIntentResponse: DetectIntentRes
                     {
                         session: session,
                         parameters: {
-                            bookingStatus: DIALOGFLOW_FLAGS.NO_BOOKING
+                            bookingStatus: BOOKING_STATUS.NO_BOOKING
                         }
                     }
-                );
+                )
             }
 
             // 3. Check if the restaurant is open on this day
-            const operatingHours = restaurantData.operatingHours[currentDay as keyof WeeklyOperatingHours];
-            console.log(operatingHours);
+            const operatingHours = restaurantData.operatingHours[currentDay as keyof WeeklyOperatingHours]
             if (!operatingHours) {
                 return generateDialogflowResponse(
                     [
@@ -65,14 +72,14 @@ export const checkAvailableTables = async (detectIntentResponse: DetectIntentRes
                     {
                         session: session,
                         parameters: {
-                            bookingStatus: DIALOGFLOW_FLAGS.NO_BOOKING
+                            bookingStatus: BOOKING_STATUS.NO_BOOKING
                         }
                     }
-                );
+                )
             }
 
             // 4. Get availability for the date
-            const availability = await findAvailabilityByRestaurantPhoneAndDate(restaurantNumber, bookingDate);
+            const availability = await findAvailabilityByRestaurantPhoneAndDate({ restaurantNumber: restaurantNumber, date: bookingDate })
             if (!availability) {
                 return generateDialogflowResponse(
                     [
@@ -82,26 +89,24 @@ export const checkAvailableTables = async (detectIntentResponse: DetectIntentRes
                     {
                         session: session,
                         parameters: {
-                            bookingStatus: DIALOGFLOW_FLAGS.NO_BOOKING
+                            bookingStatus: BOOKING_STATUS.NO_BOOKING
                         }
                     }
-                );
+                )
             }
-            const { id: availabilityId, data: availabilityData } = availability;
-
-            console.log(availabilityId);
+            const { data: availabilityData } = availability
 
             // Get the existing bookings for the booking date
-            const existingBookings = await findBookingsByRestaurantPhoneAndDate(restaurantNumber, bookingDate);
-            let alreadyBookedSeats = 0;
+            const existingBookings = await findBookingByCustomerDateAndBookingStatus({ date: bookingDate, restaurantId: restaurantId, status: "confirmed" })
+            let alreadyBookedSeats = 0
             existingBookings?.data.forEach(data => {
                 if (data.status === 'confirmed') {
-                    alreadyBookedSeats += data.partySize;
+                    alreadyBookedSeats += data.partySize
                 }
-            });
+            })
 
             // 5. Check all-day reservation if enabled
-            const { bookingStartTime, bookingEndTime, availableSeats } = availabilityData.accpetAllDayReservation;
+            const { bookingStartTime, bookingEndTime, availableSeats } = availabilityData.accpetAllDayReservation
             if (availabilityData.accpetAllDayReservation.status) {
                 if (!isTimeWithinRange(bookingTime, bookingStartTime, bookingEndTime)) {
                     return generateDialogflowResponse(
@@ -112,10 +117,10 @@ export const checkAvailableTables = async (detectIntentResponse: DetectIntentRes
                         {
                             session: session,
                             parameters: {
-                                bookingStatus: DIALOGFLOW_FLAGS.NO_BOOKING
+                                bookingStatus: BOOKING_STATUS.NO_BOOKING
                             }
                         }
-                    );
+                    )
                 }
 
                 if ((availableSeats - alreadyBookedSeats) < partySize) {
@@ -127,10 +132,10 @@ export const checkAvailableTables = async (detectIntentResponse: DetectIntentRes
                         {
                             session: session,
                             parameters: {
-                                bookingStatus: DIALOGFLOW_FLAGS.NO_BOOKING
+                                bookingStatus: BOOKING_STATUS.NO_BOOKING
                             }
                         }
-                    );
+                    )
                 }
 
                 return generateDialogflowResponse(
@@ -138,50 +143,50 @@ export const checkAvailableTables = async (detectIntentResponse: DetectIntentRes
                     {
                         session: session,
                         parameters: {
-                            bookingStatus: DIALOGFLOW_FLAGS.YES,
+                            bookingStatus: BOOKING_STATUS.YES,
                             duration: availabilityData.accpetAllDayReservation.duration
                         }
                     }
-                );
+                )
             }
 
             // 6. Check lunch and dinner slots
-            let availableTimeSlots: Slot[] = [];
+            let availableTimeSlots: Slot[] = []
             const lunchData = availabilityData.lunch
             if (lunchData) {
                 // Add a small amount of logic to update the availableSeats depending on the alreadyBookedSeats
                 const matchingSlots = lunchData.timeSlots.filter(slot => {
                     return isTimeWithinRange(bookingTime, slot.bookingStartTime, slot.bookingEndTime) &&
-                        (slot.availableSeats - alreadyBookedSeats) >= partySize;
-                });
-                availableTimeSlots = [...availableTimeSlots, ...matchingSlots];
+                        (slot.availableSeats - alreadyBookedSeats) >= partySize
+                })
+                availableTimeSlots = [...availableTimeSlots, ...matchingSlots]
             }
             const dinnerData = availabilityData.lunch
             if (dinnerData) {
                 // Add a small amount of logic to update the availableSeats depending on the alreadyBookedSeats
                 const matchingSlots = dinnerData.timeSlots.filter(slot => {
                     return isTimeWithinRange(bookingTime, slot.bookingStartTime, slot.bookingEndTime) &&
-                        (slot.availableSeats - alreadyBookedSeats) >= partySize;
-                });
-                availableTimeSlots = [...availableTimeSlots, ...matchingSlots];
+                        (slot.availableSeats - alreadyBookedSeats) >= partySize
+                })
+                availableTimeSlots = [...availableTimeSlots, ...matchingSlots]
             }
             availableTimeSlots.forEach(timeSlot => {
                 timeSlot.availableSeats = timeSlot.availableSeats - alreadyBookedSeats
-            });
+            })
 
             if (availableTimeSlots.length === 0) {
-                const allSlots = availabilityData.lunch.timeSlots.concat(availabilityData.dinner.timeSlots).map(slot => slot);
+                const allSlots = availabilityData.lunch.timeSlots.concat(availabilityData.dinner.timeSlots).map(slot => slot)
 
                 return generateDialogflowResponse(
                     [`Not enough seats avaialable for the date ${bookingDate} at ${bookingTime}.`,],
                     {
                         session: session,
                         parameters: {
-                            bookingStatus: DIALOGFLOW_FLAGS.NO,
+                            bookingStatus: BOOKING_STATUS.NO,
                             availableTimeSlots: allSlots
                         }
                     }
-                );
+                )
             }
 
             return generateDialogflowResponse(
@@ -189,23 +194,23 @@ export const checkAvailableTables = async (detectIntentResponse: DetectIntentRes
                 {
                     session: session,
                     parameters: {
-                        bookingStatus: DIALOGFLOW_FLAGS.YES,
+                        bookingStatus: BOOKING_STATUS.YES,
                         availableTimeSlots: availableTimeSlots,
                         duration: availableTimeSlots[0].duration
                     }
                 }
-            );
+            )
 
         } else {
-            console.error('Restaurant not found in Firestore.');
+            console.error('Restaurant not found in Firestore.')
             return generateDialogflowResponse(
                 ['The restaurant is closed at this point for unknown reasons.']
-            );
+            )
         }
     } catch (error) {
-        console.error('Error checking restaurant status:', error);
+        console.error('Error checking restaurant status:', error)
         return generateDialogflowResponse(
             [ERROR_MESSAGE]
-        );
+        )
     }
 }

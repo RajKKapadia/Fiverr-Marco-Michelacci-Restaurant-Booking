@@ -3,7 +3,7 @@ import type { NextRequest } from 'next/server'
 import { ENV } from '@/utils/env'
 
 export function middleware(request: NextRequest) {
-    const path = request.nextUrl.pathname;
+    const path = request.nextUrl.pathname
     if (path.startsWith('/api')) {
         const authHeader = request.headers.get('Authorization')
         if (!authHeader) {
@@ -14,9 +14,9 @@ export function middleware(request: NextRequest) {
                     status: 401,
                     headers: { 'Content-Type': 'application/json' }
                 }
-            );
+            )
         }
-        const [bearer, token] = authHeader.split(' ');
+        const [bearer, token] = authHeader.split(' ')
         if (bearer !== 'Bearer' || !token) {
             console.log(`❌ Invalid Authorization format`)
             return new NextResponse(
@@ -25,7 +25,7 @@ export function middleware(request: NextRequest) {
                     status: 401,
                     headers: { 'Content-Type': 'application/json' }
                 }
-            );
+            )
         }
         if (token !== ENV.API_KEY) {
             console.log(`❌ Invalid API key`)
@@ -35,10 +35,10 @@ export function middleware(request: NextRequest) {
                     status: 401,
                     headers: { 'Content-Type': 'application/json' }
                 }
-            );
+            )
         }
     }
-    return NextResponse.next();
+    return NextResponse.next()
 }
 
 export const config = {
