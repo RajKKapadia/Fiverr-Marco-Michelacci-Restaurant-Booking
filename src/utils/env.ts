@@ -18,6 +18,6 @@ export const getEnvVarOptional = (key: string, defaultValue: string = ''): strin
 }
 
 export const ENV = {
-    API_KEY: getEnvVar('API_KEY'),
-    FIREBASE_CREDENTIALS: JSON.parse(getEnvVar('FIREBASE_CREDENTIALS')) as Credentials,
+    API_KEY: getEnvVar('NEXT_PUBLIC_FIREBASE_CREDENTIALS'),
+    FIREBASE_CREDENTIALS: JSON.parse(getEnvVar('NEXT_PUBLIC_API_KEY')) as Credentials,
 } as const
