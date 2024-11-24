@@ -22,7 +22,6 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
     const json = await request.json()
-    console.log(json)
     const { url, method } = request
     try {
         const detectIntentResponse = json as DetectIntentResponse
