@@ -1,9 +1,4 @@
-import dotenv from "dotenv"
-
-
 import { Credentials } from "@/types"
-
-dotenv.config()
 
 export const getEnvVar = (key: string): string => {
     const value = process.env[key]
@@ -18,6 +13,6 @@ export const getEnvVarOptional = (key: string, defaultValue: string = ''): strin
 }
 
 export const ENV = {
-    API_KEY: getEnvVar('NEXT_PUBLIC_FIREBASE_CREDENTIALS'),
-    FIREBASE_CREDENTIALS: JSON.parse(getEnvVar('NEXT_PUBLIC_API_KEY')) as Credentials,
+    API_KEY: getEnvVar('NEXT_PUBLIC_API_KEY'),
+    FIREBASE_CREDENTIALS: JSON.parse(getEnvVar('NEXT_PUBLIC_FIREBASE_CREDENTIALS')) as Credentials,
 } as const
