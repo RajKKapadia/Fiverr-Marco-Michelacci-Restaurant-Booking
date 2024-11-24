@@ -1,4 +1,9 @@
+import dotenv from "dotenv"
+
+
 import { Credentials } from "@/types"
+
+dotenv.config()
 
 export const getEnvVar = (key: string): string => {
     const value = process.env[key]
