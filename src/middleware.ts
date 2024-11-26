@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
-import { ENV } from '@/utils/env'
 
 export function middleware(request: NextRequest) {
     const path = request.nextUrl.pathname
@@ -27,7 +26,7 @@ export function middleware(request: NextRequest) {
                 }
             )
         }
-        if (token !== ENV.API_KEY) {
+        if (token !== process.env.NEXT_PUBLIC_API_KEY) {
             console.log(`❌ Invalid API key`)
             return new NextResponse(
                 JSON.stringify({ error: 'Invalid API key' }),
