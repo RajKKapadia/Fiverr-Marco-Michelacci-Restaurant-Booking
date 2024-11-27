@@ -34,7 +34,7 @@ export const addToCallback = async (detectIntentResponse: DetectIntentResponse):
             )
         }
     } catch (error) {
-        console.error('Error at getACallback:', error)
+        console.error('Error at addToCallback:', error)
         return generateDialogflowResponse(
             [ERROR_MESSAGE]
         )
