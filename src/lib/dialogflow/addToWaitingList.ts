@@ -40,9 +40,9 @@ export const addToWaitingList = async (detectIntentResponse: DetectIntentRespons
             duration: "",
             status: "pending"
         }
-        console.log(newWaitingList)
-        const flag = await addWaitingList({ waitingList: newWaitingList, restaurantId: parameters.restaurantId })
-        if (flag) {
+        const newWaitingListInfo = await addWaitingList({ waitingList: newWaitingList, restaurantId: parameters.restaurantId })
+        console.log(newWaitingListInfo.id)
+        if (newWaitingListInfo.status) {
             return generateDialogflowResponse(
                 ["WaitingList saved."]
             )

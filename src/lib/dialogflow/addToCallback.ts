@@ -23,8 +23,9 @@ export const addToCallback = async (detectIntentResponse: DetectIntentResponse):
             reason: parameters.callback_reason,
             status: "pending",
         }
-        const flag = await addCallback({ callback: newCallback, restaurantId: parameters.restaurantId })
-        if (flag) {
+        const newCallbackInfo = await addCallback({ callback: newCallback, restaurantId: parameters.restaurantId })
+        console.log(newCallbackInfo.id)
+        if (newCallbackInfo.status) {
             return generateDialogflowResponse(
                 ["Callback saved."]
             )

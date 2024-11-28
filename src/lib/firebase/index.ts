@@ -70,27 +70,39 @@ export const addBookings = async ({ booking, restaurantId }: { booking: Bookings
     }
 }
 
-export const addWaitingList = async ({ waitingList, restaurantId }: { waitingList: WaitingList, restaurantId: string }): Promise<boolean> => {
+export const addWaitingList = async ({ waitingList, restaurantId }: { waitingList: WaitingList, restaurantId: string }): Promise<{ id: string, status: boolean }> => {
     try {
         const restaurantRef = db.collection(restaurantCollectionName).doc(restaurantId)
         const waitingListRef = restaurantRef.collection(waitingListCollectionName)
-        await waitingListRef.add(waitingList)
-        return true
+        const newWaitingList = await waitingListRef.add(waitingList)
+        return {
+            id: newWaitingList.id,
+            status: true
+        }
     } catch (error) {
         console.error('Error at addWaitingList:', error)
-        return false
+        return {
+            id: "",
+            status: false
+        }
     }
 }
 
-export const addCallback = async ({ callback, restaurantId }: { callback: Callback, restaurantId: string }): Promise<boolean> => {
+export const addCallback = async ({ callback, restaurantId }: { callback: Callback, restaurantId: string }): Promise<{ id: string, status: boolean }> => {
     try {
         const restaurantRef = db.collection(restaurantCollectionName).doc(restaurantId)
         const callbackRef = restaurantRef.collection(callbackRequestsCollectionName)
-        await callbackRef.add(callback)
-        return true
+        const newCallback = await callbackRef.add(callback)
+        return {
+            id: newCallback.id,
+            status: true
+        }
     } catch (error) {
         console.error('Error at addCallback:', error)
-        return false
+        return {
+            id: "",
+            status: false
+        }
     }
 }
 
@@ -234,7 +246,6 @@ export const findBookingByCustomerReservationNumber = async ({ reservationNumber
             .where("status", "==", "pending")
             .get()
         if (!bookingsSnapshot.empty) {
-            console.log(bookingsSnapshot.docs.length)
             const bookings = bookingsSnapshot.docs.map(doc => ({
                 id: doc.id,
                 ...doc.data()
