@@ -262,14 +262,38 @@ export const findBookingByCustomerReservationNumber = async ({ reservationNumber
     }
 }
 
-export const updateBookingProperty = async ({ restaurantId, bookingId, updates }: { restaurantId: string, bookingId: string, updates: Partial<Bookings> }): Promise<boolean> => {
+export const updateBookingProperties = async ({ restaurantId, bookingId, updates }: { restaurantId: string, bookingId: string, updates: Partial<Bookings> }): Promise<{ id: string, status: boolean }> => {
     try {
         const restaurantRef = db.collection(restaurantCollectionName).doc(restaurantId)
         const bookingRef = restaurantRef.collection(bookingsCollectionName).doc(bookingId)
         await bookingRef.update(updates)
-        return true
+        return {
+            id: bookingId,
+            status: false
+        }
     } catch (error) {
         console.error("Error at updateBookingProperty:", error)
-        return false
+        return {
+            id: "",
+            status: false
+        }
+    }
+}
+
+export const addAvailability = async ({ availability, restaurantId }: { availability: Availability, restaurantId: string }): Promise<{ id: string, status: boolean }> => {
+    try {
+        const restaurantRef = db.collection(restaurantCollectionName).doc(restaurantId)
+        const availabilityRef = restaurantRef.collection(availabilityCollectionName)
+        const newAvailability = await availabilityRef.add(availability)
+        return {
+            id: newAvailability.id,
+            status: true
+        }
+    } catch (error) {
+        console.error('Error at addAvailability:', error)
+        return {
+            id: "",
+            status: false
+        }
     }
 }

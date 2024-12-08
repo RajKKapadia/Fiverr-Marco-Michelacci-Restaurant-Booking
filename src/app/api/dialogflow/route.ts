@@ -11,7 +11,8 @@ import {
     getBookingFromPhone,
     invalidateBookingDate,
     getReservationFromParameter,
-    cancellReservation
+    cancellReservation,
+    updateBooking
 } from '@/lib/dialogflow'
 import { DetectIntentResponse } from '@/types'
 import { generateDialogflowResponse } from '@/utils'
@@ -53,7 +54,10 @@ export async function POST(request: NextRequest) {
             }
         } else if (tag === "cancellReservation") {
             responseData = cancellReservation(detectIntentResponse)
-        } else {
+        } else if (tag === "updateBooking") {
+            responseData = await updateBooking(detectIntentResponse)
+        }
+        else {
             responseData = generateDialogflowResponse(
                 [`No handler for the tag ${tag}.`]
             )

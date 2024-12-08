@@ -12,7 +12,14 @@ export const addToBookings = async (detectIntentResponse: DetectIntentResponse):
             )
         }
         let day, month, year, hours, minutes = 0
-        if (parameters.BOOKING_CHANGED) {
+        if (parameters.BOOKING_TYPE === "ALTERNATE") {
+            day = parameters.alternative_booking_date.day as number
+            month = parameters.alternative_booking_date.month as number
+            year = parameters.alternative_booking_date.year as number
+            hours = parameters.alternative_booking_time.hours as number
+            minutes = parameters.alternative_booking_time.minutes as number
+        }
+        if (parameters.BOOKING_TYPE === "CHANGED") {
             day = parameters.new_booking_date.day as number
             month = parameters.new_booking_date.month as number
             year = parameters.new_booking_date.year as number
@@ -42,11 +49,7 @@ export const addToBookings = async (detectIntentResponse: DetectIntentResponse):
             duration: parameters.duration,
             partySize: 4,
             endTime: endTime,
-            specialRequests: {
-                tableType: parameters.table_type || "",
-                allergy: parameters.allergy || "",
-                speciaOccassion: parameters.specia_occassion || ""
-            },
+            specialRequests: parameters.special_needs || "No special needs.",
             startTime: startTime,
             status: "pending"
         }

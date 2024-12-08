@@ -1,7 +1,7 @@
 import { ERROR_MESSAGE } from "@/config/constants";
 import { Bookings, DetectIntentResponse, DialogflowResponse } from "@/types";
 import { generateDialogflowResponse } from "@/utils";
-import { updateBookingProperty } from "@/lib/firebase";
+import { updateBookingProperties } from "@/lib/firebase";
 
 export const cancellReservation = async (detectIntentResponse: DetectIntentResponse): Promise<DialogflowResponse> => {
     try {
@@ -16,7 +16,8 @@ export const cancellReservation = async (detectIntentResponse: DetectIntentRespo
             const bookingUpdate: Partial<Bookings> = {
                 status: "cancelled"
             }
-            const flag = await updateBookingProperty({ bookingId: bookingId, restaurantId: parameters.restaurantId, updates: bookingUpdate })
+            const flag = await updateBookingProperties({ bookingId: bookingId, restaurantId: parameters.restaurantId, updates: bookingUpdate })
+            console.log(bookingId)
             if (flag) {
                 return generateDialogflowResponse(
                     ["Booking cancelled."]

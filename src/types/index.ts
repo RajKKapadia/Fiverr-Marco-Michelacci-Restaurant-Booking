@@ -143,7 +143,9 @@ export interface Restaurant {
     paymentAccepted: string[]
     takeaway: boolean
     petAccepted: boolean
-    tableTypes: string[]
+    tableTypes: string[],
+    groupSize: number
+    isConfirmationRequired: boolean
 }
 
 export interface Bookings {
