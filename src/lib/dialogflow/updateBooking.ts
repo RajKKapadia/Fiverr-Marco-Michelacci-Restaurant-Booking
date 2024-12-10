@@ -18,7 +18,13 @@ export const updateBooking = async (detectIntentResponse: DetectIntentResponse):
         const minutes = parameters.booking_time.minutes as number
         const { bookingDate, bookingTime } = getBookingDateAndtime({ day: day, month: month - 1, year: year, hours: hours, minutes: minutes })
         const { startTime, endTime } = calculateStartAndEndTime({ startTime: bookingTime, duration: parameters.duration })
-        const bookingId = parameters.booking.id || ""
+        const reservationOption = parameters.reservation_option || ""
+        let bookingId = ""
+        if (reservationOption === "") {
+            bookingId = parameters.booking.id
+        } else {
+            bookingId = parameters.booking[reservationOption - 1].id
+        }
         if (bookingId === "") {
             return generateDialogflowResponse(
                 [ERROR_MESSAGE]

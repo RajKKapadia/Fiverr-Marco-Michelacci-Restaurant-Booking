@@ -55,6 +55,9 @@ export const isTimeWithinRange = (time: string, startTime: string, endTime: stri
         const timeValue = hours * 60 + minutes
         const startValue = startHours * 60 + startMinutes
         const endValue = endHours * 60 + endMinutes
+        if (timeValue === 0) {
+            return true
+        }
         return timeValue >= startValue && timeValue <= endValue
     } catch (error) {
         console.error('Error parsing time:', error)

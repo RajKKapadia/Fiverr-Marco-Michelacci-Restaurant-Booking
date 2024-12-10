@@ -62,19 +62,20 @@ export const checkAvailableTables = async (detectIntentResponse: DetectIntentRes
                 )
             }
 
-            // 2. Check if there's a special event
-            const hasSpecialEvent = restaurantData.specialEvents.some(event =>
+            // Find the matching special event
+            const specialEvent = restaurantData.specialEvents.find(event =>
                 event.date === bookingDate && event.requiresReservation === true
             )
-            if (hasSpecialEvent) {
+            if (specialEvent) {
                 return generateDialogflowResponse(
                     [
-                        "There is no slot available for reservation today beacuase of a special event."
+                        "There is no slot available for reservation today beacuase of a special event.",
+                        `Event name: ${specialEvent.name}, date: ${specialEvent.date} and description: ${specialEvent.description}.`
                     ],
                     {
                         session: session,
                         parameters: {
-                            bookingStatus: BOOKING_STATUS.NO_BOOKING
+                            bookingStatus: BOOKING_STATUS.SPECIAL_EVENT
                         }
                     }
                 )
@@ -98,6 +99,7 @@ export const checkAvailableTables = async (detectIntentResponse: DetectIntentRes
 
             // 4. Get availability for the date
             const availability = await findAvailabilityByRestaurantPhoneAndDate({ restaurantNumber: restaurantNumber, date: bookingDate })
+            console.log(availability?.id)
             if (!availability) {
                 return generateDialogflowResponse(
                     [

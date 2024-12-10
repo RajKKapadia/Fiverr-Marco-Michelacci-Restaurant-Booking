@@ -17,17 +17,31 @@ export const getBookingFromPhone = async (detectIntentResponse: DetectIntentResp
         }
         const bookings = await findBookingByCustomerPhone({ customerPhone: parameters.customer_phone, restaurantId: parameters.restaurantId, status })
         if (bookings) {
-            return generateDialogflowResponse(
-                [`The booking with the phone number ${parameters.customer_phone} found.`],
-                {
-                    session: detectIntentResponse.sessionInfo.session,
-                    parameters: {
-                        foundBooking: BOOKING_FOUND.YES,
-                        booking: bookings.data[0],
-                        multipleBookings: false
+            if (bookings.data.length > 1) {
+                return generateDialogflowResponse(
+                    [`The booking with the phone number ${parameters.customer_phone} found.`],
+                    {
+                        session: detectIntentResponse.sessionInfo.session,
+                        parameters: {
+                            foundBooking: BOOKING_FOUND.YES,
+                            booking: bookings.data,
+                            multipleBookings: true
+                        }
                     }
-                }
-            )
+                )
+            } else {
+                return generateDialogflowResponse(
+                    [`The booking with the phone number ${parameters.customer_phone} found.`],
+                    {
+                        session: detectIntentResponse.sessionInfo.session,
+                        parameters: {
+                            foundBooking: BOOKING_FOUND.YES,
+                            booking: bookings.data[0],
+                            multipleBookings: false
+                        }
+                    }
+                )
+            }
         } else {
             return generateDialogflowResponse(
                 [`The booking with the phone number ${parameters.customer_phone} not found.`],

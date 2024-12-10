@@ -269,7 +269,7 @@ export const updateBookingProperties = async ({ restaurantId, bookingId, updates
         await bookingRef.update(updates)
         return {
             id: bookingId,
-            status: false
+            status: true
         }
     } catch (error) {
         console.error("Error at updateBookingProperty:", error)

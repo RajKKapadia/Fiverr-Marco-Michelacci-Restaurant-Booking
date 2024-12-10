@@ -14,17 +14,31 @@ export const getReservationFromParameter = async (detectIntentResponse: DetectIn
         if (parameters.FETCH_PARAMETER === "RESERVATION_NUMBER") {
             const bookings = await findBookingByCustomerReservationNumber({ reservationNumber: parameters.reservation_number, restaurantId: parameters.restaurantId })
             if (bookings) {
-                return generateDialogflowResponse(
-                    [`The booking with the reservation number ${parameters.reservation_number} found.`],
-                    {
-                        session: detectIntentResponse.sessionInfo.session,
-                        parameters: {
-                            foundBooking: "YES",
-                            booking: bookings.data[0],
-                            multipleBookings: false
+                if (bookings.data.length > 1) {
+                    return generateDialogflowResponse(
+                        [`The booking with the reservation number ${parameters.reservation_number} found.`],
+                        {
+                            session: detectIntentResponse.sessionInfo.session,
+                            parameters: {
+                                foundBooking: "YES",
+                                booking: bookings.data,
+                                multipleBookings: true
+                            }
                         }
-                    }
-                )
+                    )
+                } else {
+                    return generateDialogflowResponse(
+                        [`The booking with the reservation number ${parameters.reservation_number} found.`],
+                        {
+                            session: detectIntentResponse.sessionInfo.session,
+                            parameters: {
+                                foundBooking: "YES",
+                                booking: bookings.data[0],
+                                multipleBookings: false
+                            }
+                        }
+                    )
+                }
             } else {
                 return generateDialogflowResponse(
                     [`The booking with the reservation number ${parameters.reservation_number} not found.`],
@@ -56,17 +70,31 @@ export const getReservationFromParameter = async (detectIntentResponse: DetectIn
             const { bookingDate } = getBookingDate({ day: day, month: month - 1, year: year })
             const bookings = await findBookingByCustomerDate({ date: bookingDate, restaurantId: parameters.restaurantId })
             if (bookings) {
-                return generateDialogflowResponse(
-                    [`The booking with the booking date ${bookingDate} found.`],
-                    {
-                        session: detectIntentResponse.sessionInfo.session,
-                        parameters: {
-                            foundBooking: "YES",
-                            booking: bookings.data,
-                            multipleBookings: true
+                if (bookings.data.length > 1) {
+                    return generateDialogflowResponse(
+                        [`The booking with the booking date ${bookingDate} found.`],
+                        {
+                            session: detectIntentResponse.sessionInfo.session,
+                            parameters: {
+                                foundBooking: "YES",
+                                booking: bookings.data,
+                                multipleBookings: true
+                            }
                         }
-                    }
-                )
+                    )
+                } else {
+                    return generateDialogflowResponse(
+                        [`The booking with the booking date ${bookingDate} found.`],
+                        {
+                            session: detectIntentResponse.sessionInfo.session,
+                            parameters: {
+                                foundBooking: "YES",
+                                booking: bookings.data[0],
+                                multipleBookings: false
+                            }
+                        }
+                    )
+                }
             } else {
                 return generateDialogflowResponse(
                     [`The booking with the booking date ${bookingDate} not found.`],
@@ -81,17 +109,31 @@ export const getReservationFromParameter = async (detectIntentResponse: DetectIn
         } else if (parameters.FETCH_PARAMETER === "BOOKING_EMAIL") {
             const bookings = await findBookingByCustomerEmail({ email: parameters.booking_email, restaurantId: parameters.restaurantId })
             if (bookings) {
-                return generateDialogflowResponse(
-                    [`The booking with the email ${parameters.booking_email} found.`],
-                    {
-                        session: detectIntentResponse.sessionInfo.session,
-                        parameters: {
-                            foundBooking: "YES",
-                            booking: bookings.data[0],
-                            multipleBookings: false
+                if (bookings.data.length > 1) {
+                    return generateDialogflowResponse(
+                        [`The booking with the email ${parameters.booking_email} found.`],
+                        {
+                            session: detectIntentResponse.sessionInfo.session,
+                            parameters: {
+                                foundBooking: "YES",
+                                booking: bookings.data,
+                                multipleBookings: true
+                            }
                         }
-                    }
-                )
+                    )
+                } else {
+                    return generateDialogflowResponse(
+                        [`The booking with the email ${parameters.booking_email} found.`],
+                        {
+                            session: detectIntentResponse.sessionInfo.session,
+                            parameters: {
+                                foundBooking: "YES",
+                                booking: bookings.data[0],
+                                multipleBookings: false
+                            }
+                        }
+                    )
+                }
             } else {
                 return generateDialogflowResponse(
                     [`The booking with the email ${parameters.booking_email} not found.`],
@@ -106,17 +148,31 @@ export const getReservationFromParameter = async (detectIntentResponse: DetectIn
         } else if (parameters.FETCH_PARAMETER === "BOOKING_NAME") {
             const bookings = await findBookingByCustomerName({ name: parameters.booking_name.name, restaurantId: parameters.restaurantId })
             if (bookings) {
-                return generateDialogflowResponse(
-                    [`The booking with the name ${parameters.booking_name.name} found.`],
-                    {
-                        session: detectIntentResponse.sessionInfo.session,
-                        parameters: {
-                            foundBooking: "YES",
-                            booking: bookings.data,
-                            multipleBookings: true
+                if (bookings.data.length > 1) {
+                    return generateDialogflowResponse(
+                        [`The booking with the name ${parameters.booking_name.name} found.`],
+                        {
+                            session: detectIntentResponse.sessionInfo.session,
+                            parameters: {
+                                foundBooking: "YES",
+                                booking: bookings.data,
+                                multipleBookings: true
+                            }
                         }
-                    }
-                )
+                    )
+                } else {
+                    return generateDialogflowResponse(
+                        [`The booking with the name ${parameters.booking_name.name} found.`],
+                        {
+                            session: detectIntentResponse.sessionInfo.session,
+                            parameters: {
+                                foundBooking: "YES",
+                                booking: bookings.data[0],
+                                multipleBookings: false
+                            }
+                        }
+                    )
+                }
             } else {
                 return generateDialogflowResponse(
                     [`The booking with the name ${parameters.booking_name.name} not found.`],
