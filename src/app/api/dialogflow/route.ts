@@ -16,6 +16,7 @@ import {
 } from '@/lib/dialogflow'
 import { DetectIntentResponse } from '@/types'
 import { generateDialogflowResponse } from '@/utils'
+import { ERROR_MESSAGE } from '@/config/constants'
 
 export async function GET() {
     return NextResponse.json({ status: 200, statusText: "OK" })
@@ -59,6 +60,11 @@ export async function POST(request: NextRequest) {
             const tempData = await getReservationFromParameter(detectIntentResponse)
             if (tempData !== null) {
                 const responseData = tempData
+                return NextResponse.json(responseData, { status: 200, statusText: "OK" })
+            } else {
+                const responseData = generateDialogflowResponse(
+                    [ERROR_MESSAGE]
+                )
                 return NextResponse.json(responseData, { status: 200, statusText: "OK" })
             }
         } else if (tag === "cancellReservation") {
