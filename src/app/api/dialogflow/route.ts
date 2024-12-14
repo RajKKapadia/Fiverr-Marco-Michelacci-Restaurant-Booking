@@ -23,8 +23,7 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
-    const rawText = await request.text()
-    const json = JSON.parse(rawText)
+    const json = await request.json()
     const { url, method } = request
     try {
         const detectIntentResponse = json as DetectIntentResponse
