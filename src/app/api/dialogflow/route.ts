@@ -28,41 +28,52 @@ export async function POST(request: NextRequest) {
         const detectIntentResponse = json as DetectIntentResponse
         const tag = detectIntentResponse.fulfillmentInfo.tag
         console.log(`Tag: ${tag}`)
-        let responseData = {}
         if (tag === "defaultWelcomeIntent") {
-            responseData = await defaultWelcomeIntent(detectIntentResponse)
+            const responseData = await defaultWelcomeIntent(detectIntentResponse)
+            return NextResponse.json(responseData, { status: 200, statusText: "OK" })
         } else if (tag === "checkWorkingHours") {
-            responseData = await checkWorkingHours()
+            const responseData = await checkWorkingHours()
+            return NextResponse.json(responseData, { status: 200, statusText: "OK" })
         } else if (tag === "getFutureHolidays") {
-            responseData = await getFutureHolidays()
+            const responseData = await getFutureHolidays()
+            return NextResponse.json(responseData, { status: 200, statusText: "OK" })
         } else if (tag === "checkAvailableTables") {
-            responseData = await checkAvailableTables(detectIntentResponse)
+            const responseData = await checkAvailableTables(detectIntentResponse)
+            return NextResponse.json(responseData, { status: 200, statusText: "OK" })
         } else if (tag === 'addToBookings') {
-            responseData = await addToBookings(detectIntentResponse)
+            const responseData = await addToBookings(detectIntentResponse)
+            return NextResponse.json(responseData, { status: 200, statusText: "OK" })
         } else if (tag === 'addToWaitingList') {
-            responseData = await addToWaitingList(detectIntentResponse)
+            const responseData = await addToWaitingList(detectIntentResponse)
+            return NextResponse.json(responseData, { status: 200, statusText: "OK" })
         } else if (tag == 'addToCallback') {
-            responseData = await addToCallback(detectIntentResponse)
+            const responseData = await addToCallback(detectIntentResponse)
+            return NextResponse.json(responseData, { status: 200, statusText: "OK" })
         } else if (tag === "getBookingFromPhone") {
-            responseData = await getBookingFromPhone(detectIntentResponse)
+            const responseData = await getBookingFromPhone(detectIntentResponse)
+            return NextResponse.json(responseData, { status: 200, statusText: "OK" })
         } else if (tag === "invalidateBookingDate") {
-            responseData = invalidateBookingDate(detectIntentResponse)
+            const responseData = invalidateBookingDate(detectIntentResponse)
+            return NextResponse.json(responseData, { status: 200, statusText: "OK" })
         } else if (tag === "getReservationFromParameter") {
             const tempData = await getReservationFromParameter(detectIntentResponse)
             if (tempData !== null) {
-                responseData = tempData
+                const responseData = tempData
+                return NextResponse.json(responseData, { status: 200, statusText: "OK" })
             }
         } else if (tag === "cancellReservation") {
-            responseData = cancellReservation(detectIntentResponse)
+            const responseData = cancellReservation(detectIntentResponse)
+            return NextResponse.json(responseData, { status: 200, statusText: "OK" })
         } else if (tag === "updateBooking") {
-            responseData = await updateBooking(detectIntentResponse)
+            const responseData = await updateBooking(detectIntentResponse)
+            return NextResponse.json(responseData, { status: 200, statusText: "OK" })
         }
         else {
-            responseData = generateDialogflowResponse(
+            const responseData = generateDialogflowResponse(
                 [`No handler for the tag ${tag}.`]
             )
+            return NextResponse.json(responseData, { status: 200, statusText: "OK" })
         }
-        return NextResponse.json(responseData, { status: 200, statusText: "OK" })
     } catch (error) {
         return NextResponse.json(
             { error: `Error at ${url}: Method: ${method} Error ${error}` },
