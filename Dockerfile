@@ -23,9 +23,9 @@ RUN pnpm build
 EXPOSE 3000
 
 # Set environment variables
-ENV NODE_ENV production
-ENV PORT 3000
-ENV HOSTNAME "127.0.0.1"
+ENV NODE_ENV=production
+ENV PORT=3000
+ENV HOSTNAME="127.0.0.1"
 
 # Start the application
 CMD ["pnpm", "start"]
