@@ -7,6 +7,7 @@ export const defaultWelcomeIntent = async (detectIntentResponse: DetectIntentRes
     try {
         const session = detectIntentResponse.sessionInfo.session
         const parameters = detectIntentResponse.sessionInfo.parameters
+        console.log(parameters)
         if (parameters == null) {
             return generateDialogflowResponse(
                 [ERROR_MESSAGE]
