@@ -21,10 +21,16 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-    const json = await request.json() as Object
     const { url, method } = request
+    const jsonData = await request.json() as Object
+    if (jsonData === undefined) {
+        return Response.json(
+            { error: `Error at ${url}: Method: ${method}` },
+            { status: 500 }
+        )
+    }
     try {
-        const detectIntentResponse = json as DetectIntentResponse
+        const detectIntentResponse = jsonData as DetectIntentResponse
         const tag = detectIntentResponse.fulfillmentInfo.tag
         console.log(`Tag: ${tag}`)
         if (tag === "defaultWelcomeIntent") {
