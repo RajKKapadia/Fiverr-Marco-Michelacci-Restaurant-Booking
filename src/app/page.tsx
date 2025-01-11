@@ -3,5 +3,5 @@ export default function Home() {
     <div>
       <h1>API is working.</h1>
     </div>
-  );
+  )
 }
