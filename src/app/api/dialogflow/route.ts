@@ -1,6 +1,3 @@
-export const dynamic = 'force-dynamic'
-export const revalidate = 0
-
 import { NextRequest, NextResponse } from 'next/server'
 
 import {
@@ -26,7 +23,8 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
-    const json = await request.json()
+    const json = await request.json() as Object
+    console.log(json)
     const { url, method } = request
     try {
         const detectIntentResponse = json as DetectIntentResponse
